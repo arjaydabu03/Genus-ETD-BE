@@ -90,10 +90,10 @@ class UserController extends Controller
       }
     public function update(Request $request, $id)
       {   
-        $user_id = Auth()->user()->id;
-        $not_allowed = User::where('id',$id)
-        ->where('id',$user_id)->exists();
-        return $user_id;
+        // $user_id = Auth()->user()->id;
+        // $not_allowed = User::where('id',$id)
+        // ->where('id',$user_id)->exists();
+        // return $user_id;
 
           $result = User::find($id);
           $result->update([
