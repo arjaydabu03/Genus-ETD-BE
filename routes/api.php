@@ -3,7 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
-use App\Http\Controllers\Api\PositionController;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\MaterialController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,6 +21,8 @@ use App\Http\Controllers\Api\PositionController;
     Route::patch('register/{id}',[UserController::class,'destroy']);
     Route::put('register/{id}',[UserController::class,'update']);
     Route::apiResource('register',UserController::class);
+    Route::apiResource('category',CategoryController::class);
+    Route::apiResource('material',MaterialController::class);
 });
     Route::post('login',[UserController::class,'login']);
     Route::post('register',[UserController::class,'register']);

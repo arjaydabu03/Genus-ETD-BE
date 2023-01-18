@@ -17,8 +17,11 @@ return new class extends Migration
             $table->increments('id');
             $table->string('account_code')->unique();
             $table->string('account_name')->unique();
+            $table->string('location_code');
             $table->string('location');
+            $table->string('department_code');
             $table->string('department');
+            $table->string('company_code');
             $table->string('company');
             $table->string('scope');
             $table->string('type')->nullable();

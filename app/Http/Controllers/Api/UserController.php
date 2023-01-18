@@ -18,8 +18,11 @@ class UserController extends Controller
         $request->validate([
             'account_code'=> 'required|string',
             'account_name'=> 'required|string',
+            'location_code'=> 'required',
             'location'=> 'required',
+            'department_code'=> 'required',
             'department'=> 'required',
+            'company_code'=> 'required',
             'company'=> 'required',
             'scope'=> 'required|string',
             'type'=> 'required|string',
@@ -31,8 +34,11 @@ class UserController extends Controller
         $user=new User([
             'account_code'=> $request->account_code,
             'account_name'=> $request->account_name,
+            'location_code'=> $request->location_code,
             'location'=> $request->location,
+            'department_code'=> $request->department_code,
             'department'=> $request->department,
+            'company_code'=> $request->company_code,
             'company'=> $request->company,
             'scope'=> $request->scope,
             'type'=> $request->type,
