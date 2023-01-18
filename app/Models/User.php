@@ -23,8 +23,12 @@ class User extends Authenticatable
     protected $fillable = [
         'account_code',
         'account_name',
-        'position_id',
-        'store',
+        'location',
+        'department',
+        'company',
+        'scope',
+        'type',
+        'mobile_no',
         'username',
         'password',
     ];
@@ -37,7 +41,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'position_id'
+
     ];
 
 
@@ -50,8 +54,5 @@ class User extends Authenticatable
     //     'email_verified_at' => 'datetime',
     // ];
 
-    public function position()
-{
-    return $this->belongsTo(Position::class);
-}
+ 
 }

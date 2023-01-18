@@ -15,20 +15,19 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('account_code');
-            $table->string('account_name');
-            $table->unsignedInteger('position_id');
-            $table->string('store');
+            $table->string('account_code')->unique();
+            $table->string('account_name')->unique();
+            $table->string('location');
+            $table->string('department');
+            $table->string('company');
+            $table->string('scope');
+            $table->string('type')->nullable();
+            $table->string('mobile_no');
             $table->string('username')->unique();
-            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();
-            $table->foreign('position_id')
-            ->references('id')
-            ->on('position')
-            ->onDelete('cascade');
         });
     }
 

@@ -18,8 +18,12 @@ class UserController extends Controller
         $request->validate([
             'account_code'=> 'required|string',
             'account_name'=> 'required|string',
-            'position_id'=> 'required',
-            'store'=> 'required|string',
+            'location'=> 'required',
+            'department'=> 'required',
+            'company'=> 'required',
+            'scope'=> 'required|string',
+            'type'=> 'required|string',
+            'mobile_no'=> 'required|string',
             'username'=> 'required|string|unique:users',
             'password'=> 'required|string|min:6',
             'password_confirmation' => 'required_with:password|same:password|min:6'
@@ -27,8 +31,12 @@ class UserController extends Controller
         $user=new User([
             'account_code'=> $request->account_code,
             'account_name'=> $request->account_name,
-            'position_id'=> $request->position_id,
-            'store'=> $request->store,
+            'location'=> $request->location,
+            'department'=> $request->department,
+            'company'=> $request->company,
+            'scope'=> $request->scope,
+            'type'=> $request->type,
+            'mobile_no'=> $request->mobile_no,
             'username'=> $request->username,
             'password'=> Hash::make($request->password)
         ]);
@@ -99,8 +107,12 @@ class UserController extends Controller
           $result->update([
             'account_code'=> $request['account_code'],
             'account_name'=> $request['account_name'],
-            'position'=> $request['position'],
-            'store'=> $request['store'],
+            'location'=> $request['location'],
+            'department'=> $request['department'],
+            'company'=> $request['company'],
+            'scope'=> $request['scope'],
+            'type'=> $request['type'],
+            'mobile_no'=> $request['mobile_no'],
             'username'=> $request['username'],
             'password'=> Hash::make($request['password'])
           ]);
@@ -109,7 +121,7 @@ class UserController extends Controller
 
     public function index(Request $request)
     {
-        $user = User::with('position')->get();
+        $user = User::get();
         return $user;
     }
 }

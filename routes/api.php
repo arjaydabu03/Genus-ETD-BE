@@ -19,8 +19,6 @@ use App\Http\Controllers\Api\PositionController;
     Route::post('logout',[UserController::class,'logout']);
     Route::patch('register/{id}',[UserController::class,'destroy']);
     Route::put('register/{id}',[UserController::class,'update']);
-    Route::apiResource('position',PositionController::class);
-    Route::patch('position/{id}',[PositionController::class,'destroy']);
     Route::apiResource('register',UserController::class);
 });
     Route::post('login',[UserController::class,'login']);
