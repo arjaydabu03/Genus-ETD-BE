@@ -47,7 +47,6 @@ class Handler extends ExceptionHandler
     {
        $this->renderable(function( ValidationException $e,$request){
         return response()->json([
-            'code'=>Status::FAILED,
             'message'=>$e->getMessage(),
             'errors'=>$e->errors()
           ],Status::FAILED);

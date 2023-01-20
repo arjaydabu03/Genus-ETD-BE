@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\MaterialController;
+use App\Http\Controllers\Api\ScopeController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -18,11 +19,15 @@ use App\Http\Controllers\Api\MaterialController;
 
     Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::post('logout',[UserController::class,'logout']);
-    Route::patch('register/{id}',[UserController::class,'destroy']);
-    Route::put('register/{id}',[UserController::class,'update']);
-    Route::apiResource('register',UserController::class);
+    Route::patch('user/{id}',[UserController::class,'destroy']);
+    Route::put('user/{id}',[UserController::class,'update']);
+    Route::apiResource('user',UserController::class);
+
     Route::apiResource('category',CategoryController::class);
+
+    Route::apiResource('scope',ScopeController::class);
+
     Route::apiResource('material',MaterialController::class);
 });
     Route::post('login',[UserController::class,'login']);
-    Route::post('register',[UserController::class,'register']);
+    Route::post('store',[UserController::class,'store']);

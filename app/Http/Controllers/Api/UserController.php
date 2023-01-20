@@ -9,45 +9,41 @@ use Illuminate\Support\Facades\Hash;
 use App\Response\Status;
 use App\Functions\GlobalFunction;
 use App\Models\User;
+use App\Http\Requests\UserRequest;
 use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    public function register(Request $request){
-       
-        $request->validate([
-            'account_code'=> 'required|string',
-            'account_name'=> 'required|string',
-            'location_code'=> 'required',
-            'location'=> 'required',
-            'department_code'=> 'required',
-            'department'=> 'required',
-            'company_code'=> 'required',
-            'company'=> 'required',
-            'scope'=> 'required|string',
-            'type'=> 'required|string',
-            'mobile_no'=> 'required|string',
-            'username'=> 'required|string|unique:users',
-            'password'=> 'required|string|min:6',
-            'password_confirmation' => 'required_with:password|same:password|min:6'
-        ]);
+    public function store(UserRequest $request){
+    
+        $code=$request->code;
+        $name=$request->name;
+
+        $is_exists= User::where('account_code',$code)
+        ->where('account_name',$name)->exists(); 
+        if ($is_exists){
+        return GlobalFunction::exists(Status::FAILED,Status::EXISTS_STATUS);
+        }
+
+        $validated=$request->validated();
+
         $user=new User([
-            'account_code'=> $request->account_code,
-            'account_name'=> $request->account_name,
-            'location_code'=> $request->location_code,
-            'location'=> $request->location,
-            'department_code'=> $request->department_code,
-            'department'=> $request->department,
-            'company_code'=> $request->company_code,
-            'company'=> $request->company,
-            'scope'=> $request->scope,
-            'type'=> $request->type,
-            'mobile_no'=> $request->mobile_no,
-            'username'=> $request->username,
-            'password'=> Hash::make($request->password)
+            'account_code'=> $validated['code'],
+            'account_name'=> $validated['name'],
+            'location_code'=> $validated['location']['code'],
+            'location'=> $validated['location']['name'],
+            'department_code'=> $validated['department']['code'],
+            'department'=> $validated['department']['name'],
+            'company_code'=> $validated['company']['code'],
+            'company'=> $validated['company']['name'],
+            'scope_id'=> $validated['scope_id'],
+            'type'=> $validated['type'],
+            'mobile_no'=> $validated['mobile_no'],
+            'username'=> $validated['username'],
+            'password'=> Hash::make($validated['username'])
         ]);
           $user->save();
-        return response()->json(['message'=>'User Has been Registered!']);
+        return GlobalFunction::save('Successfully Registered!',[$user]);
     }
     public function login(Request $request){
         

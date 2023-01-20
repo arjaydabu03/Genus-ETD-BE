@@ -4,23 +4,20 @@ namespace App\Functions;
 class GlobalFunction
 {
 
-    public static function exists($code,$message,$result=[]){
+    public static function exists($message,$result=[]){
         return response()->json([
-            'code'=>$code,
             'message'=>$message,
             'errors'=>$result
           ]);
     }
-    public static function save($code,$message,$result=[]){
+    public static function save($message,$result=[]){
         return response()->json([ 
-            'code'=>$code,
             'message'=>$message,
             'result'=>$result
           ]);
     }
-    public static function update_response($code,$message,$result=[]){
+    public static function update_response($message,$result=[]){
         return response()->json([ 
-            'code'=>$code,
             'message'=>$message,
             'result'=>$result
           ]);
