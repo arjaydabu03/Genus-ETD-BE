@@ -5,17 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-class Category extends Model
+class TagAccount extends Model
 {
     use HasFactory,SoftDeletes;
+    protected $table = "tagaccountlocation";
+    protected $fillable = ['account_id','location_id'];
 
-    protected $table = "categories";
-    protected $fillable = ['name'];
 
     protected $hidden = [
-        'id',
+        'account_id',
         'created_at',
         'updated_at',
         'deleted_at',
+
     ];
+    
 }

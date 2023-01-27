@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('department');
             $table->string('company_code');
             $table->string('company');
-            $table->string('scope_id');
             $table->string('type')->nullable();
             $table->string('mobile_no');
             $table->string('username')->unique();

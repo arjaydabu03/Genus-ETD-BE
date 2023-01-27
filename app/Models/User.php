@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Laravel\Sanctum\HasApiTokens;
+use App\Http\Resources\UserResource;
 
 // use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -29,7 +30,6 @@ class User extends Authenticatable
         'department',
         'company_code',
         'company',
-        'scope_id',
         'type',
         'mobile_no',
         'username',
@@ -41,10 +41,10 @@ class User extends Authenticatable
 
     ];
 
-    public function scope()
-    {
-        return $this->belongsTo(ScopeController::class)->select('id','name');
-    }
+    function scope(){
+        return $this->hasMany(TagAccount::class,'account_id','id');
+        // return UserResource::collection($locations);
 
+    }
  
 }

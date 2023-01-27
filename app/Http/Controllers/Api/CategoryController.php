@@ -7,55 +7,68 @@ use Illuminate\Http\Request;
 use App\Models\Category;
 use App\Response\Status;
 use App\Functions\GlobalFunction;
+
+use App\Http\Requests\Category\CategoryRequest;
+use App\Http\Requests\Category\DisplayRequest;
 class CategoryController extends Controller
 {
-   
-    public function index()
-    {
-      $category = Category::get();
-      return $category;
+    public function index(DisplayRequest $request){
+        $status=$request->status;
+        $search=$request->search;
+        $category = Category::when($status === 'inactive',function($query){
+          $query->onlyTrashed();
+      })
+         ->when($search,function($query) use($search){
+            $query->where('name','like','%'.$search.'%');
+      })
+         ->paginate($request->rows);
+
+        $is_empty = $category->isEmpty();
+        if($is_empty){
+
+          return GlobalFunction::not_found(Status::NOT_FOUND);
+        }
+          return GlobalFunction::display_response(Status::USER_DISPLAY,$category);
     }
-    public function store(Request $request)
-    {
-      $name=$request->name;
-      $is_exists= Category::where('name',$name)->exists();
-   
-      if ($is_exists){
-       return GlobalFunction::exists(Status::FAILED,Status::EXISTS_STATUS);
-      }
-      $result = Category:: create([
-       "name"=>$name
+
+    public function show($id){
+      $category = Category::where('id',$id)->get();
+      return GlobalFunction::display_response(Status::USER_DISPLAY,$category);
+    }
+
+    public function store(CategoryRequest $request){
+
+      $validated=$request->validated();
+
+      $category = Category:: create([
+       'name'=> $validated['name']
       ]);
-      return GlobalFunction::save(Status::SUCCESS,Status::CREATE_STATUS,$result);
+
+      return GlobalFunction::save(Status::CATEGORY_SAVE,$category);
     }
-    public function show($id)
-    {
-      $result = Category::where('id',$id)->get();
-      return $result;
-    }
-    public function update(Request $request, $id)
-    {
-      $result = Category::find($id);
-      $result->update([
+
+    public function update(CategoryRequest $request, $id){
+      $category = Category::find($id);
+      $category->update([
         'name'=>$request['name']
       ]);
-      return GlobalFunction::update_response(Status::SUCCESS,Status::UPDATE_STATUS,$result);
+      return GlobalFunction::update_response(Status::CATEGORY_UPDATE,$category);
     }
-    public function destroy($id)
-    {
-      $result = Category::withTrashed()->find($id);
+
+    public function destroy($id){
+      $category = Category::withTrashed()->find($id);
       $is_active = Category::withTrashed()
               ->where('id', $id)
               ->first();
       if(!$is_active){
         return $is_active;
       }else if(!$is_active->deleted_at){
-          $result->delete();
+          $category->delete();
           $message = Status::ARCHIVE_STATUS;
       }else {
-          $result->restore();
+          $category->restore();
           $message = Status::RESTORE_STATUS;
       }
-       return response()->json([$message,$result]);
+      return GlobalFunction::delete_response($message,$category);
     }
 }

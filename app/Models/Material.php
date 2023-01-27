@@ -14,6 +14,9 @@ class Material extends Model
 
     protected $hidden = [
         'category_id',
+        'id',
+        'created_at',
+        'updated_at',
     ];
 
 
