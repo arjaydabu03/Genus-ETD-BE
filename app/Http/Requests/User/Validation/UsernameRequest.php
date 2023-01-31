@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\User;
+namespace App\Http\Requests\User\Validation;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class DisplayRequest extends FormRequest
+class UsernameRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,7 @@ class DisplayRequest extends FormRequest
     public function rules()
     {
         return [
-            'status'=>['required','string','in:active,inactive']
-            
+            'username'=>['required','unique:users,username']
         ];
     }
 }

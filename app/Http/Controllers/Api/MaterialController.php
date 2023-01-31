@@ -5,6 +5,7 @@ namespace App\Http\Controllers\api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Material;
+use App\Models\Category;
 use App\Response\Status;
 use App\Functions\GlobalFunction;
 
@@ -15,6 +16,7 @@ class MaterialController extends Controller
 {
    
     public function index(DisplayRequest $request){
+
          $search=$request->search;
          $status=$request->status;
          $material = Material::with('category')
@@ -35,12 +37,23 @@ class MaterialController extends Controller
     }
 
     public function show($id){
+
       $material = Material::with('category')->where('id',$id)->get(['code','description','category_id']);
-      return GlobalFunction::display_response(Status::USER_DISPLAY,$material);
+      if($material->isEmpty()){
+        return GlobalFunction::not_found(Status::NOT_FOUND);
+      }
+      return GlobalFunction::display_response(Status::USER_DISPLAY,$material->first());
     }
 
     public function store(MaterialRequest $request){
+
+      $category_id=$request->category_id;
+      $material = Category::where('id',$category_id)->get();
   
+      if($material->isEmpty()){
+        return GlobalFunction::invalid(Status::INVALID_ACTION);
+      }
+      
       $validated=$request->validated();
 
       $material = Material:: create([
@@ -52,7 +65,21 @@ class MaterialController extends Controller
     }
 
     public function update(Request $request, $id){
+
+      $not_found = Material::where('id',$id)->get();
+
+      if($not_found->isEmpty()){
+          return GlobalFunction::not_found(Status::NOT_FOUND);
+          }
+
+          $category_id=$request->category_id;
+          $invalid_category = Material::where('id',$category_id)->get();
+  
+          if($invalid_category->isEmpty()){
+            return GlobalFunction::invalid_archived(Status::INVALID_CATEGORY);
+            }
       $material = Material::find($id);
+
       $material->update([
         'code'=>$request['code'],
         'description'=>$request['description'],
@@ -62,9 +89,15 @@ class MaterialController extends Controller
     }
 
     public function destroy($id){
-      $material = Material::withTrashed()->find($id);
 
-      $model = new Material;
+      $material = Category::where('id',$id)->withTrashed()->get();
+
+            if($material->isEmpty()){
+              return GlobalFunction::invalid(Status::INVALID_ACTION);
+            }
+
+      $material = Material::withTrashed()->find($id);
+     
       $is_active = Material::withTrashed()
               ->where('id', $id)
               ->first();

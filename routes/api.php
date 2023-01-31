@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\MaterialController;
 use App\Http\Controllers\Api\TagAccountController;
 use App\Http\Controllers\Api\OrderController;
+use App\Http\Controllers\Api\TypeController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -21,12 +22,14 @@ use App\Http\Controllers\Api\OrderController;
     Route::group(['middleware' => ['auth:sanctum']], function(){
         Route::post('logout',[UserController::class,'logout']);
         Route::patch('user/{id}',[UserController::class,'destroy']);
+        Route::post('validate',[UserController::class,'validate_username']);
         Route::put('user/reset',[UserController::class,'reset_password']);
         Route::put('user/old_password/{id}',[UserController::class,'old_password']);
         Route::put('user/change_password/{id}',[UserController::class,'change_password']);
         Route::put('user/{id}',[UserController::class,'update']);
         
-     
+        
+        Route::post('store',[UserController::class,'store']);
         Route::apiResource('user',UserController::class);
 
         Route::apiResource('category',CategoryController::class);
@@ -35,7 +38,9 @@ use App\Http\Controllers\Api\OrderController;
         
         Route::apiResource('tagaccount',UserController::class);
 
+        Route::apiResource('type',TypeController::class);
+        
         Route::apiResource('order',OrderController::class);
     });
-    Route::post('login',[UserController::class,'login']);
-    Route::post('store',[UserController::class,'store']);
+        Route::post('login',[UserController::class,'login']);
+  

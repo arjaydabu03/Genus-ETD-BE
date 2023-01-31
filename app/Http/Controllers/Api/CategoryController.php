@@ -13,27 +13,35 @@ use App\Http\Requests\Category\DisplayRequest;
 class CategoryController extends Controller
 {
     public function index(DisplayRequest $request){
+
         $status=$request->status;
         $search=$request->search;
+        $paginate=isset($request->paginate) ? $request->paginate : 1;
+        
         $category = Category::when($status === 'inactive',function($query){
           $query->onlyTrashed();
       })
          ->when($search,function($query) use($search){
             $query->where('name','like','%'.$search.'%');
-      })
-         ->paginate($request->rows);
+      });
+
+      $category=$paginate?$category->paginate($request->rows):$category->get();
 
         $is_empty = $category->isEmpty();
-        if($is_empty){
+        
+        if($is_empty) return GlobalFunction::not_found(Status::NOT_FOUND);
 
-          return GlobalFunction::not_found(Status::NOT_FOUND);
-        }
-          return GlobalFunction::display_response(Status::USER_DISPLAY,$category);
+        return GlobalFunction::display_response(Status::USER_DISPLAY,$category);
     }
 
     public function show($id){
+
       $category = Category::where('id',$id)->get();
-      return GlobalFunction::display_response(Status::USER_DISPLAY,$category);
+
+        if($category->isEmpty()){
+          return GlobalFunction::not_found(Status::NOT_FOUND);
+        }
+          return GlobalFunction::display_response(Status::USER_DISPLAY,$category->first());
     }
 
     public function store(CategoryRequest $request){
@@ -44,31 +52,46 @@ class CategoryController extends Controller
        'name'=> $validated['name']
       ]);
 
-      return GlobalFunction::save(Status::CATEGORY_SAVE,$category);
-    }
+          return GlobalFunction::save(Status::CATEGORY_SAVE,$category);
+    }             
 
     public function update(CategoryRequest $request, $id){
-      $category = Category::find($id);
+      
+      $not_found = Category::where('id',$id)->get();
+        if($not_found->isEmpty()){
+            return GlobalFunction::not_found(Status::NOT_FOUND);
+            }
+
+        $category = Category::find($id);
+
       $category->update([
         'name'=>$request['name']
-      ]);
+       ]);
+
       return GlobalFunction::update_response(Status::CATEGORY_UPDATE,$category);
     }
 
     public function destroy($id){
+
+      $category = Category::where('id',$id)->withTrashed()->get();
+
+        if($category->isEmpty()){
+          return GlobalFunction::invalid_archived(Status::INVALID_ACTION);
+      }
+
       $category = Category::withTrashed()->find($id);
       $is_active = Category::withTrashed()
               ->where('id', $id)
               ->first();
-      if(!$is_active){
-        return $is_active;
-      }else if(!$is_active->deleted_at){
-          $category->delete();
-          $message = Status::ARCHIVE_STATUS;
-      }else {
-          $category->restore();
-          $message = Status::RESTORE_STATUS;
-      }
-      return GlobalFunction::delete_response($message,$category);
+        if(!$is_active){
+          return $is_active;
+        }else if(!$is_active->deleted_at){
+            $category->delete();
+            $message = Status::ARCHIVE_STATUS;
+        }else {
+            $category->restore();
+            $message = Status::RESTORE_STATUS;
+        }
+       return GlobalFunction::delete_response($message,$category);
     }
 }

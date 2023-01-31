@@ -43,9 +43,8 @@ class UserRequest extends FormRequest
             'type'=> 'required',
             'mobile_no'=> [
                 'required',
-                'string',
-                'min:11',
-                'numeric',
+                'regex:[09]',
+                'digits:11',
                 $this->route()->id
                     ? 'unique:users,mobile_no,'.$this->route()->id
                     : 'unique:users,mobile_no'

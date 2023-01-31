@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 use App\Response\Status;
 use App\Functions\GlobalFunction;
@@ -17,11 +18,14 @@ use App\Models\TagAccount;
 use App\Models\Location;
 
 use App\Http\Resources\UserResource;
+use App\Http\Resources\LoginResource;
 
+use App\Http\Requests\User\Validation\UsernameRequest;
 use App\Http\Requests\User\UserRequest;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\ChangeRequest;
 use App\Http\Requests\User\DisplayRequest;
+
 
 class UserController extends Controller
 {
@@ -29,11 +33,12 @@ class UserController extends Controller
 
          $search=$request->search;
          $status=$request->status;
-         
+         $rows=$request->rows;
+        
          $users = User::with('scope')
          ->when($status === 'inactive',function($query){
             $query->onlyTrashed();
-         }) 
+         })
          ->when($search,function($query) use($search){
             $query->where('account_code','like','%'.$search.'%')
             ->orWhere('account_name','like','%'.$search.'%')
@@ -44,20 +49,27 @@ class UserController extends Controller
             ->orWhere('location_code','like','%'.$search.'%')
             ->orWhere('location','like','%'.$search.'%');
         })
-         ->paginate($request->rows);
+        ->paginate($rows);
 
         $is_empty = $users->isEmpty();
         if($is_empty){
            return GlobalFunction::not_found(Status::NOT_FOUND);
         }
-         $user_collection = UserResource::collection($users);
-         return GlobalFunction::display_response(Status::USER_DISPLAY,$user_collection);
+
+        UserResource::collection($users);
+        return GlobalFunction::display_response(Status::USER_DISPLAY,$users);
+    
     }
 
     public function show($id){
 
-        $users = User::where('id',$id)->with('scope')->get()->first();
-        $user_collection = UserResource::collection([$users]);
+        $not_found = User::where('id',$id)->get();
+        //  return $not_found;
+        if($not_found->isEmpty()){
+            return GlobalFunction::not_found(Status::NOT_FOUND);
+        }
+        $users = User::where('id',$id)->with('scope')->get();
+        $user_collection = UserResource::collection($users)->first();
             
           return GlobalFunction::display_response(Status::USER_DISPLAY,$user_collection);
     }
@@ -92,15 +104,15 @@ class UserController extends Controller
                 "location_id"=> $location_id
             ]);
         }
-        $user= $user->with('location')->first();
+      //  $user= $user->with('scope')->first();
 
           return GlobalFunction::save(Status::REGISTERED,$user);
     }
 
     public function login(LoginRequest $request){
 
-        $user =  User::where('username', $request->username)->first();
-
+        $user =  User::where('username', $request->username)->with('scope')->first();
+  
         if (! $user || ! Hash::check($request->password, $user->password))
          {
             throw ValidationException::withMessages([
@@ -109,11 +121,11 @@ class UserController extends Controller
             ]);
         }
         $token = $user->createToken('PersonalAccessToken')->plainTextToken;
-        $user = [
-            'token'=>$token,
-            'user'=>$user
-        ];
+        $user['token']=$token;
+        $user= new LoginResource($user);
+     
         $cookie=cookie('authcookie',$token);
+
         return GlobalFunction::login_user(Status::LOGIN_USER,$user)->withCookie($cookie);
     }
 
@@ -124,6 +136,12 @@ class UserController extends Controller
     }
 
     public function destroy(Request $request, $id){
+
+        $invalid_id = Category::where('id',$invalid_id)->withTrashed()->get();
+        
+            if($invalid_id->isEmpty()){
+              return GlobalFunction::invalid(Status::INVALID_ACTION);
+         }
 
         $user_id = Auth()->user()->id;
         $not_allowed = User::where('id',$id)
@@ -150,20 +168,56 @@ class UserController extends Controller
 
     public function update(UserRequest $request, $id){   
 
-          $user = User::find($id);
+        $user = User::find($id);
+        $scope_id=$request->scope_id;
+
+        $not_found = User::where('id',$id)->get();
+        if($not_found->isEmpty()){
+            return GlobalFunction::not_found(Status::NOT_FOUND);
+            }
+
+          $not_allowed=User::where('id',$id)->onlyTrashed()->exists();
+            if($not_allowed){
+                return GlobalFunction::invalid(Status::INVALID_ACTION);
+            }
+
+        $is_exists=TagAccount::where('account_id',$id)->get();
+    
+        foreach($is_exists as $location_id){
+           $location=$location_id->location_id;
+        if(!in_array($location,$scope_id)){
+
+            TagAccount::where('account_id',$id)->where('location_id',$location)->delete();
+        }
+
+         }
+         foreach($scope_id as $scope){
+            if(!TagAccount::where('account_id',$id)->where('location_id',$scope)->exists()){
+                TagAccount::create([
+                    'account_id'=>$id,
+                    'location_id'=>$scope
+                ]);
+            }
+         }
+
           $user->update([
-            'account_code'=> $request['account_code'],
-            'account_name'=> $request['account_name'],
-            'location'=> $request['location'],
-            'department'=> $request['department'],
-            'company'=> $request['company'],
+            'account_code'=> $request['code'],
+            'account_name'=> $request['name'],
+            'location_code'=> $request['location']['code'],
+            'location'=> $request['location']['name'],
+            'department_code'=> $request['department']['code'],
+            'department'=> $request['department']['name'],
+            'company_code'=> $request['company']['code'],
+            'company'=> $request['company']['name'],
             'scope'=> $request['scope'],
             'type'=> $request['type'],
             'mobile_no'=> $request['mobile_no'],
             'username'=> $request['username'],
           ]);
           
-             return GlobalFunction::update_response(Status::USER_UPDATE,$user);
+
+             $user_collection=UserResource::collection([$user])->first();
+             return GlobalFunction::update_response(Status::USER_UPDATE,$user_collection);
     }
 
     public function reset_password(Request $request){
@@ -201,5 +255,10 @@ class UserController extends Controller
             {
                 return GlobalFunction::invalid(Status::INVALID_RESPONSE);
             }
+    }
+
+    public function validate_username(UsernameRequest $request){
+        
+        return GlobalFunction::single_validation(Status::SINGLE_VALIDATION);
     }
 }

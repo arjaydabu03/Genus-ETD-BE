@@ -16,7 +16,7 @@ class Material extends Model
         'category_id',
         'id',
         'created_at',
-        'updated_at',
+        'deleted_at',
     ];
 
 
