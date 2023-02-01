@@ -21,6 +21,8 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\LoginResource;
 
 use App\Http\Requests\User\Validation\UsernameRequest;
+use App\Http\Requests\User\Validation\CodeRequest;
+use App\Http\Requests\User\Validation\MobileRequest;
 use App\Http\Requests\User\UserRequest;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\ChangeRequest;
@@ -104,7 +106,8 @@ class UserController extends Controller
                 "location_id"=> $location_id
             ]);
         }
-      //  $user= $user->with('scope')->first();
+
+          $user= new UserResource($user);
 
           return GlobalFunction::save(Status::REGISTERED,$user);
     }
@@ -131,7 +134,8 @@ class UserController extends Controller
 
     public function logout(Request $request){
 
-        auth()->user()->tokens()->delete();
+        // auth()->user()->tokens()->delete();//all token of one user
+        auth()->user()->currentAccessToken()->delete();//current user
         return GlobalFunction::logout_response(Status::LOGOUT_USER);
     }
 
@@ -140,7 +144,7 @@ class UserController extends Controller
         $invalid_id = Category::where('id',$invalid_id)->withTrashed()->get();
         
             if($invalid_id->isEmpty()){
-              return GlobalFunction::invalid(Status::INVALID_ACTION);
+              return GlobalFunction::not_found(Status::NOT_FOUND);
          }
 
         $user_id = Auth()->user()->id;
@@ -163,6 +167,7 @@ class UserController extends Controller
             $user->restore();
             $message = Status::RESTORE_STATUS;
         }
+            $user= new UserResource($user);
             return GlobalFunction::delete_response($message,$user);
     }
 
@@ -214,7 +219,6 @@ class UserController extends Controller
             'mobile_no'=> $request['mobile_no'],
             'username'=> $request['username'],
           ]);
-          
 
              $user_collection=UserResource::collection([$user])->first();
              return GlobalFunction::update_response(Status::USER_UPDATE,$user_collection);
@@ -260,5 +264,18 @@ class UserController extends Controller
     public function validate_username(UsernameRequest $request){
         
         return GlobalFunction::single_validation(Status::SINGLE_VALIDATION);
+        
+    }
+
+    public function validate_code(CodeRequest $request){
+        
+        return GlobalFunction::single_validation(Status::SINGLE_VALIDATION);
+        
+    }
+    
+    public function validate_mobile(MobileRequest $request){
+       
+        return GlobalFunction::single_validation(Status::SINGLE_VALIDATION);
+        
     }
 }

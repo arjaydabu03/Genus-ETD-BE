@@ -11,6 +11,7 @@ use App\Functions\GlobalFunction;
 
 use App\Http\Requests\Material\MaterialRequest;
 use App\Http\Requests\Material\DisplayRequest;
+use App\Http\Requests\Material\Validation\CodeRequest;
 
 class MaterialController extends Controller
 {
@@ -33,7 +34,7 @@ class MaterialController extends Controller
             if($is_empty){
               return GlobalFunction::not_found(Status::NOT_FOUND);
               }
-            return GlobalFunction::display_response(Status::USER_DISPLAY,$material);
+            return GlobalFunction::display_response(Status::MATERIAL_DISPLAY,$material);
     }
 
     public function show($id){
@@ -42,7 +43,7 @@ class MaterialController extends Controller
       if($material->isEmpty()){
         return GlobalFunction::not_found(Status::NOT_FOUND);
       }
-      return GlobalFunction::display_response(Status::USER_DISPLAY,$material->first());
+      return GlobalFunction::display_response(Status::MATERIAL_DISPLAY,$material->first());
     }
 
     public function store(MaterialRequest $request){
@@ -64,7 +65,7 @@ class MaterialController extends Controller
       return GlobalFunction::save(Status::MATERIAL_SAVE,$material);
     }
 
-    public function update(Request $request, $id){
+    public function update(MaterialRequest $request, $id){
 
       $not_found = Material::where('id',$id)->get();
 
@@ -93,7 +94,7 @@ class MaterialController extends Controller
       $material = Category::where('id',$id)->withTrashed()->get();
 
             if($material->isEmpty()){
-              return GlobalFunction::invalid(Status::INVALID_ACTION);
+              return GlobalFunction::not_found(Status::NOT_FOUND);
             }
 
       $material = Material::withTrashed()->find($id);
@@ -112,4 +113,9 @@ class MaterialController extends Controller
       }
       return GlobalFunction::delete_response($message,$material);
     }
+
+    public function validate_code(CodeRequest $request){
+        
+      return GlobalFunction::single_validation(Status::SINGLE_VALIDATION);
+  }
 }

@@ -11,6 +11,7 @@ use App\Models\Order;
 
 use App\Response\Status;
 use App\Functions\GlobalFunction;
+use App\Http\Requests\Order\StoreRequest;
 
 class OrderController extends Controller
 {
@@ -36,67 +37,73 @@ class OrderController extends Controller
     }
 
     public function show($id){
-        $order = Order::where('id',$id)->get()->first();
+        $order = Order::where('id',$id)->get();
 
-        $order_collection = OrderResource::collection([$order]);
+        $order_collection = OrderResource::collection($order);
 
-        return GlobalFunction::display_response(Status::USER_DISPLAY,$order_collection);
+        return GlobalFunction::display_response(Status::USER_DISPLAY,$order_collection->first());
     }
 
-    public function store(Request $request){
+    public function store(StoreRequest $request){
   
-      $validated=$request->validated();
+       $validated=$request->validated();
 
-      $order = Material:: create([
+      $order = Order:: create([
         'order_no'=> $validated['order_no'],
-        'date_ordered'=> $validated['date_ordered'],
-        'date_needed'=> $validated['date_needed'],
-        'date_approved'=> $validated['date_approved'],
-        'company_id'=> $validated['company_id'],
-        'company_name'=> $validated['company_name'],
-        'department_id'=> $validated['department_id'],
-        'department_name'=> $validated['department_name'],
-        'location_id'=> $validated['location_id'],
-        'location_name'=> $validated['location_name'],
-        'customer_code'=> $validated['customer_code'],
-        'customer_name'=> $validated['customer_name'],
-        'material_code'=> $validated['material_code'],
-        'material_name'=> $validated['material_name'],
-        'category_id'=> $validated['category_id'],
-        'category_name'=> $validated['category_name'],
+        'date_ordered'=> $validated['dates']['date_ordered'],
+        'date_needed'=> $validated['dates']['date_needed'],
+        'company_id'=> $validated['company']['id'],
+        'company_name'=> $validated['company']['name'],
+        'department_id'=> $validated['department']['id'],
+        'department_name'=> $validated['department']['name'],
+        'location_id'=> $validated['location']['id'],
+        'location_name'=> $validated['location']['name'],
+        'customer_code'=> $validated['customer']['code'],
+        'customer_name'=> $validated['customer']['name'],
+        'material_code'=> $validated['material']['code'],
+        'material_name'=> $validated['material']['name'],
+        'category_id'=> $validated['category']['id'],
+        'category_name'=> $validated['category']['name'],
         'quantity'=> $validated['quantity'],
         'remarks'=> $validated['remarks'],
-        'is_approved'=> $validated['is_approved'],
+
       ]);
+     $order= new OrderResource($order);
       return GlobalFunction::save(Status::ORDER_SAVE,$order);
     }
 
     public function update(Request $request, $id){
-      $material = Material::find($id);
-      $material->update([
-        'code'=>$request['code'],
-        'description'=>$request['description'],
-        'category_id'=>$request['category_id']
+      $order = Order::find($id);
+      $order->update([
+        'remarks'=>$request['remarks'],
+        'quantity'=>$request['quantity']
       ]);
-      return GlobalFunction::update_response(Status::MATERIAL_UPDATE,$material);
+      $order_collection = new OrderResource($order);
+      return GlobalFunction::update_response(Status::ORDER_UPDATE,$order_collection);
     }
 
     public function destroy($id){
-      $material = Material::withTrashed()->find($id);
 
-      $model = new Material;
-      $is_active = Material::withTrashed()
-              ->where('id', $id)
-              ->first();
-      if(!$is_active){
-        return $is_active;
-      }else if(!$is_active->deleted_at){
-          $material->delete();
-          $message = Status::ARCHIVE_STATUS;
-      }else {
-          $material->restore();
-          $message = Status::RESTORE_STATUS;
-      }
-      return GlobalFunction::delete_response($message,$material);
+      $invalid_id = Order::where('id',$id)->withTrashed()->get();
+        
+            if($invalid_id->isEmpty()){
+              return GlobalFunction::not_found(Status::NOT_FOUND);
+         }
+
+        $order = Order::withTrashed()->find($id);
+        $is_active = Order::withTrashed()
+            ->where('id', $id)
+            ->first();
+        if(!$is_active){
+            return $is_active;
+        }else if(!$is_active->deleted_at){
+            $order->delete();
+            $message = Status::ARCHIVE_STATUS;
+        }else {
+            $order->restore();
+            $message = Status::RESTORE_STATUS;
+        }
+        $order_collection = new OrderResource($order);
+            return GlobalFunction::delete_response($message,$order_collection);
     }
 }

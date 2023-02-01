@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Material;
+namespace App\Http\Requests\User\Validation;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class MaterialRequest extends FormRequest
+class MobileRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,15 +24,7 @@ class MaterialRequest extends FormRequest
     public function rules()
     {
         return [
-            'code'=> [
-                'required',
-                'string',
-                $this->route()->material
-                    ? 'unique:materials,code,'.$this->route()->material
-                    : 'unique:materials,code'
-            ],
-            'description'=>'required',
-            'category_id'=>'required'
+            'mobile_no'=>['required','unique:users,mobile_no']
         ];
     }
 }

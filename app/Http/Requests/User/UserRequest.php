@@ -28,6 +28,7 @@ class UserRequest extends FormRequest
             'code'=> [
                 'required',
                 'string',
+                
                 $this->route()->id
                     ? 'unique:users,account_code,'.$this->route()->id
                     : 'unique:users,account_code'
