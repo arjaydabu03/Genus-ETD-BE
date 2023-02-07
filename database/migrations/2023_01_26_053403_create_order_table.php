@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('order', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('order_no');
-            $table->date('date_ordered');
+            $table->dateTime('date_ordered');
             $table->date('date_needed');
             $table->string('date_approved')->nullable();
             $table->integer('company_id');
@@ -34,7 +34,7 @@ return new class extends Migration
             $table->double('quantity');
             $table->string('remarks')->nullable();
             $table->boolean('is_approved')->default(0);
-           
+        
             $table->timestamps();
             $table->softDeletes();
         });

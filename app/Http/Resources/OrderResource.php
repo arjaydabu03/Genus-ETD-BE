@@ -38,17 +38,20 @@ class OrderResource extends JsonResource
                 "code"=> $this->customer_code,
                 "name"=> $this->customer_name,
             ],
-            "material"=>[
-                "code"=> $this->material_code,
-                "name"=> $this->material_name,
+            "order"=>[
+                "material"=>[
+                    "code"=> $this->material_code,
+                    "name"=> $this->material_name,
+                ],
+                "category"=>[
+                    "id"=> $this->category_id,
+                    "name"=> $this->category_name,
+                ],
             ],
-            "category"=>[
-                "id"=> $this->category_id,
-                "name"=> $this->category_name,
-            ],
+
             "quantity"=>$this->quantity,
             "remarks"=>$this->remarks,
-            "is_approved"=>$this->is_approved
+            "is_approved"=>$this->is_approved,
         ];
     }
 }

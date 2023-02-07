@@ -24,15 +24,15 @@ class UserResource extends JsonResource
                 "name"=> $this->account_name,
             ],
             "company"=>[
-                "id"=> $this->company_code,
+                "code"=> $this->company_code,
                 "name"=> $this->company,
             ],
             "department"=>[
-                "id"=> $this->department_code,
+                "code"=> $this->department_code,
                 "name"=> $this->department,
             ],
             "location"=>[
-                "id"=> $this->location_code,
+                "code"=> $this->location_code,
                 "name"=> $this->location,
             ],
             "username"=> $this->username,

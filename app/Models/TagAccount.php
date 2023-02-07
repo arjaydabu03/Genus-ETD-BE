@@ -19,4 +19,5 @@ class TagAccount extends Model
 
     ];
     
+    
 }

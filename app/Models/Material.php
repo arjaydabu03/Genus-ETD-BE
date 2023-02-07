@@ -10,11 +10,10 @@ class Material extends Model
     use HasFactory,SoftDeletes;
 
     protected $table = "materials";
-    protected $fillable = ['code','description','category_id'];
+    protected $fillable = ['code','name','category_id'];
 
     protected $hidden = [
         'category_id',
-        'id',
         'created_at',
         'deleted_at',
     ];

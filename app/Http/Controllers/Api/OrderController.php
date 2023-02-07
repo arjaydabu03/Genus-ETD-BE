@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use App\Http\Resources\OrderResource;
 
 use App\Models\Order;
+use App\Models\Material;
+use App\Models\Category;
 
 use App\Response\Status;
 use App\Functions\GlobalFunction;
@@ -17,23 +19,27 @@ class OrderController extends Controller
 {
 
     public function index(Request $request){
+
          $search=$request->search;
          $status=$request->status;
+        //  $paginate=isset($request->paginate) ? $request->paginate : 1;
+         $is_approved=$request->is_approved?$request->is_approved:0;
          $order = Order::when($status === 'inactive',function($query){
-            $query->onlyTrashed();
+              $query->onlyTrashed();
             })
-            ->when($search,function($query) use($search){
+              ->where('is_approved',$is_approved)
+              ->when($search,function($query) use($search){
                $query->where('code','like','%'.$search.'%')
               ->orWhere('description','like','%'.$search.'%');
-            })
-           ->paginate($request->rows);
+            })->paginate($request->rows);
 
             $is_empty = $order->isEmpty();
             if($is_empty){
               return GlobalFunction::not_found(Status::NOT_FOUND);
               }
-              $order_collection = OrderResource::collection($order);
-              return GlobalFunction::display_response(Status::USER_DISPLAY,$order_collection);
+             
+              OrderResource::collection($order);
+              return GlobalFunction::display_response(Status::USER_DISPLAY,$order);
     }
 
     public function show($id){
@@ -45,34 +51,45 @@ class OrderController extends Controller
     }
 
     public function store(StoreRequest $request){
-  
-       $validated=$request->validated();
+      
+      // $tz=date('setBegan_atAttribute');
 
-      $order = Order:: create([
-        'order_no'=> $validated['order_no'],
-        'date_ordered'=> $validated['dates']['date_ordered'],
-        'date_needed'=> $validated['dates']['date_needed'],
-        'company_id'=> $validated['company']['id'],
-        'company_name'=> $validated['company']['name'],
-        'department_id'=> $validated['department']['id'],
-        'department_name'=> $validated['department']['name'],
-        'location_id'=> $validated['location']['id'],
-        'location_name'=> $validated['location']['name'],
-        'customer_code'=> $validated['customer']['code'],
-        'customer_name'=> $validated['customer']['name'],
-        'material_code'=> $validated['material']['code'],
-        'material_name'=> $validated['material']['name'],
-        'category_id'=> $validated['category']['id'],
-        'category_name'=> $validated['category']['name'],
-        'quantity'=> $validated['quantity'],
-        'remarks'=> $validated['remarks'],
+      // return $tz;
+
+       $order = Order:: create([
+        'order_no'=> $request['order_no'],
+        'date_ordered'=> now('GMT+8'),
+        'date_needed'=> $request['dates']['date_needed'],
+        'company_id'=> $request['company']['id'],
+        'company_name'=> $request['company']['name'],
+        'department_id'=> $request['department']['id'],
+        'department_name'=> $request['department']['name'],
+        'location_id'=> $request['location']['id'],
+        'location_name'=> $request['location']['name'],
+        'customer_code'=> $request['customer']['code'],
+        'customer_name'=> $request['customer']['name'],
+        'material_code'=> $request['order']['material']['code'],
+        'material_name'=> $request['order']['material']['name'],
+        'category_id'=> $request['order']['category']['id'],
+        'category_name'=> $request['order']['category']['name'],
+        'quantity'=> $request['order']['quantity'],
+        'remarks'=> $request['order']['remarks'],
 
       ]);
-     $order= new OrderResource($order);
-      return GlobalFunction::save(Status::ORDER_SAVE,$order);
+          $order= new OrderResource($order);
+
+          return GlobalFunction::save(Status::ORDER_SAVE,$order);
     }
 
     public function update(Request $request, $id){
+
+      $not_found = Order::where('id',$id)->get();
+
+      if($not_found->isEmpty()){
+         return GlobalFunction::not_found(Status::NOT_FOUND);
+         }
+
+
       $order = Order::find($id);
       $order->update([
         'remarks'=>$request['remarks'],

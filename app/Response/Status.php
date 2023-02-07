@@ -34,5 +34,6 @@ const INVALID_CATEGORY = 'Category not found.';
 //VALIDATION
 const SINGLE_VALIDATION = 'Data has been validated.';
 const INVALID_ACTION = 'Invalid action.';
+const EXISTS = 'Data already exists.';
 
 }

@@ -31,8 +31,24 @@ class MaterialRequest extends FormRequest
                     ? 'unique:materials,code,'.$this->route()->material
                     : 'unique:materials,code'
             ],
-            'description'=>'required',
-            'category_id'=>'required'
+            'name'=>'required',
+            'category_id'=>'required|exists:categories,id'
+        ];
+    }
+
+    public function attributes()
+    {
+       return [
+            "category_id" => "category"
+
+       ];
+    }
+
+    public function messages()
+    {
+        return [
+          
+            "exists"  =>  ":Attribute is not registered.",
         ];
     }
 }

@@ -48,10 +48,8 @@ class CategoryController extends Controller
 
     public function store(CategoryRequest $request){
 
-      $validated=$request->validated();
-
       $category = Category:: create([
-       'name'=> $validated['name']
+       'name'=> $request['name']
       ]);
 
           return GlobalFunction::save(Status::CATEGORY_SAVE,$category);
@@ -79,7 +77,7 @@ class CategoryController extends Controller
       $category = Category::where('id',$id)->withTrashed()->get();
 
         if($category->isEmpty()){
-          return GlobalFunction::invalid_archived(Status::NOT_FOUND);
+          return GlobalFunction::not_found(Status::NOT_FOUND);
       }
 
         $category = Category::withTrashed()->find($id);

@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('materials', function (Blueprint $table) {
             $table->increments('id');
             $table->string('code');
-            $table->string('description');
+            $table->string('name');
             $table->unsignedInteger('category_id');
             $table->timestamps();
             $table->softDeletes();

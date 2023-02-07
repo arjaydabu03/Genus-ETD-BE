@@ -141,10 +141,10 @@ class UserController extends Controller
 
     public function destroy(Request $request, $id){
 
-        $invalid_id = Category::where('id',$invalid_id)->withTrashed()->get();
-        
-            if($invalid_id->isEmpty()){
-              return GlobalFunction::not_found(Status::NOT_FOUND);
+        $invalid_id = User::where('id',$id)->withTrashed()->get();
+    
+        if($invalid_id->isEmpty()){
+            return GlobalFunction::not_found(Status::NOT_FOUND);
          }
 
         $user_id = Auth()->user()->id;
@@ -267,7 +267,7 @@ class UserController extends Controller
         
     }
 
-    public function validate_code(CodeRequest $request){
+    public function code_validate(CodeRequest $request){
         
         return GlobalFunction::single_validation(Status::SINGLE_VALIDATION);
         

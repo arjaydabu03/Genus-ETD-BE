@@ -72,12 +72,6 @@ class GlobalFunction
         return response()->json([ 
             'message'=>$message,
             'result'=>$result
-        ],422);
-    }
-    public static function invalid_archived($message,$result=[]){
-        return response()->json([ 
-            'message'=>$message,
-            'result'=>$result
-        ],404);
+        ],200);
     }
 }
