@@ -33,7 +33,14 @@ class UserRequest extends FormRequest
                     ? 'unique:users,account_code,'.$this->route()->id
                     : 'unique:users,account_code'
             ],
-            'name'=> 'required|string',
+            'name'=> [
+                'required',
+                'string',
+                
+                $this->route()->id
+                    ? 'unique:users,account_name,'.$this->route()->id
+                    : 'unique:users,account_name'
+            ],
             'location.code'=> 'required',
             'location.name'=> 'required',
             'department.code'=> 'required',

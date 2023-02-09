@@ -19,7 +19,7 @@ use App\Http\Controllers\Api\TypeController;
 |
 */
 
-Route::get('genus_location', [UserController::class, 'get_genus_location']);
+// Route::get('genus_location', [UserController::class, 'get_genus_location']);
 
     Route::group(['middleware' => ['auth:sanctum']], function(){
         Route::post('logout',[UserController::class,'logout']);
@@ -27,15 +27,16 @@ Route::get('genus_location', [UserController::class, 'get_genus_location']);
         Route::post('code_validate',[UserController::class,'code_validate']);
         Route::post('validate_username',[UserController::class,'validate_username']);
         Route::post('validate_mobile',[UserController::class,'validate_mobile']);
-        Route::put('user/reset',[UserController::class,'reset_password']);
+        Route::post('validate_name',[UserController::class,'validate_name']);
+        Route::put('user/reset/{id}',[UserController::class,'reset_password']);
         Route::put('user/old_password/{id}',[UserController::class,'old_password']);
-        Route::put('user/change_password/{id}',[UserController::class,'change_password']);
+        Route::put('user/change_password/',[UserController::class,'change_password']);
         Route::put('user/{id}',[UserController::class,'update']);
-        Route::post('store',[UserController::class,'store']);
         Route::apiResource('user',UserController::class);
 
+        Route::patch('category/{id}',[CategoryController::class,'destroy']);
         Route::apiResource('category',CategoryController::class);
-
+      
         Route::apiResource('material',MaterialController::class);
         Route::post('validate_code',[MaterialController::class,'validate_code']);
 

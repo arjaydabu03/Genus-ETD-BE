@@ -31,7 +31,9 @@ class OrderController extends Controller
               ->when($search,function($query) use($search){
                $query->where('code','like','%'.$search.'%')
               ->orWhere('description','like','%'.$search.'%');
-            })->paginate($request->rows);
+            })
+            ->orderByDesc('updated_at')
+            ->paginate($request->rows);
 
             $is_empty = $order->isEmpty();
             if($is_empty){
@@ -52,33 +54,32 @@ class OrderController extends Controller
 
     public function store(StoreRequest $request){
       
-      // $tz=date('setBegan_atAttribute');
+      foreach( $request->order as $key=>$value ){
 
-      // return $tz;
+         Order:: create([
+         'order_no'=> $request['order_no'],
+         'date_ordered'=> now('GMT+8'),
+         'date_needed'=> $request['dates']['date_needed'],
+         'company_id'=> $request['company']['id'],
+         'company_name'=> $request['company']['name'],
+         'department_id'=> $request['department']['id'],
+         'department_name'=> $request['department']['name'],
+         'location_id'=> $request['location']['id'],
+         'location_name'=> $request['location']['name'],
+         'customer_code'=> $request['customer']['code'],
+         'customer_name'=> $request['customer']['name'],
+         
+         'material_code'=> $request['order'][$key]['material']['code'],
+         'material_name'=> $request['order'][$key]['material']['name'],
+         'category_id'=> $request['order'][$key]['category']['id'],
+         'category_name'=> $request['order'][$key]['category']['name'],
+         'quantity'=> $request['order'][$key]['quantity'],
+         'remarks'=> $request['order'][$key]['remarks'],
+ 
+       ]);
+      } 
 
-       $order = Order:: create([
-        'order_no'=> $request['order_no'],
-        'date_ordered'=> now('GMT+8'),
-        'date_needed'=> $request['dates']['date_needed'],
-        'company_id'=> $request['company']['id'],
-        'company_name'=> $request['company']['name'],
-        'department_id'=> $request['department']['id'],
-        'department_name'=> $request['department']['name'],
-        'location_id'=> $request['location']['id'],
-        'location_name'=> $request['location']['name'],
-        'customer_code'=> $request['customer']['code'],
-        'customer_name'=> $request['customer']['name'],
-        'material_code'=> $request['order']['material']['code'],
-        'material_name'=> $request['order']['material']['name'],
-        'category_id'=> $request['order']['category']['id'],
-        'category_name'=> $request['order']['category']['name'],
-        'quantity'=> $request['order']['quantity'],
-        'remarks'=> $request['order']['remarks'],
-
-      ]);
-          $order= new OrderResource($order);
-
-          return GlobalFunction::save(Status::ORDER_SAVE,$order);
+          return GlobalFunction::save(Status::ORDER_SAVE,$request->toArray());
     }
 
     public function update(Request $request, $id){

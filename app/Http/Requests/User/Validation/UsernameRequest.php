@@ -24,7 +24,11 @@ class UsernameRequest extends FormRequest
     public function rules()
     {
         return [
-            'username'=>['required','unique:users,username']
+            'username'=>[
+                $this->get('id')
+                ?'unique:users,username,'.$this->get('id')
+                :'unique:users,username'
+                ]
         ];
     }
 }

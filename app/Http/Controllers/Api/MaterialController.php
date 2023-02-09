@@ -31,10 +31,10 @@ class MaterialController extends Controller
         })
         ->when($search,function($query) use($search){
           $query->where('code','like','%'.$search.'%')
-        ->orWhere('name','like','%'.$search.'%');
+          ->orWhere('name','like','%'.$search.'%');
         });
 
-        $material=$paginate?$material->paginate($request->rows):$material->get();
+        $material=$paginate?$material->orderByDesc('updated_at')->paginate($request->rows):$material->orderByDesc('updated_at')->get();
 
         $is_empty = $material->isEmpty();
         if($is_empty){

@@ -24,7 +24,11 @@ class CodeRequest extends FormRequest
     public function rules()
     {
         return [
-            'account_code'=>['required','unique:users,account_code,']
+            'account_code'=>[
+                $this->get('id')
+                ?'unique:users,account_code,'.$this->get('id')
+                :'unique:users,account_code'
+                ]
         ];
     }
 }

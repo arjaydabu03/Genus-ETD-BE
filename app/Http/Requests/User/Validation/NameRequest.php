@@ -4,7 +4,7 @@ namespace App\Http\Requests\User\Validation;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class MobileRequest extends FormRequest
+class NameRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,11 +24,10 @@ class MobileRequest extends FormRequest
     public function rules()
     {
         return [
-          
-            'mobile_no'=>[
+            'name'=>[
                 $this->get('id')
-                ?'unique:users,mobile_no,'. $this->get('id')
-                :'unique:users,mobile_no'
+                ?'unique:users,account_name,'. $this->get('id')
+                :'unique:users,account_name'
                 ]
         ];
     }

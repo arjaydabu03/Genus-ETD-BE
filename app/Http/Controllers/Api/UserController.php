@@ -27,6 +27,7 @@ use App\Http\Requests\User\UserRequest;
 use App\Http\Requests\User\LoginRequest;
 use App\Http\Requests\User\ChangeRequest;
 use App\Http\Requests\User\DisplayRequest;
+use App\Http\Requests\User\Validation\NameRequest;
 
 
 class UserController extends Controller
@@ -49,8 +50,12 @@ class UserController extends Controller
             ->orWhere('department_code','like','%'.$search.'%')
             ->orWhere('department','like','%'.$search.'%')
             ->orWhere('location_code','like','%'.$search.'%')
-            ->orWhere('location','like','%'.$search.'%');
+            ->orWhere('location','like','%'.$search.'%')
+            ->orWhere('mobile_no','like','%'.$search.'%')
+            ->orWhere('username','like','%'.$search.'%')
+            ->orWhere('type','like','%'.$search.'%');
         })
+        ->orderByDesc('created_at')
         ->paginate($rows);
 
         $is_empty = $users->isEmpty();
@@ -224,29 +229,34 @@ class UserController extends Controller
              return GlobalFunction::update_response(Status::USER_UPDATE,$user_collection);
     }
 
-    public function reset_password(Request $request){
+    public function reset_password(Request $request,$id){
         
-         $id=Auth::id();
          $user=User::find($id);
+        
          $new_password=Hash::make($user->username);
         
             $user->update([
                 'password'=>$new_password
             ]);
-            auth()->user()->tokens()->delete();
 
           return GlobalFunction::update_response(Status::CHANGE_PASSWORD);
     }
 
-    public function change_password(ChangeRequest $request, $id){
+    public function change_password(ChangeRequest $request){
 
           $id=Auth::id();
           $user = User::find($id);
-        
+
+          if (! Hash::check($request->old_password, $user->password))
+            {
+                return GlobalFunction::invalid(Status::INVALID_RESPONSE);
+            }
           $user->update([
             'password'=> Hash::make($request['password'])
           ]);
-            auth()->user()->tokens()->delete();
+
+            auth()->user()->currentAccessToken()->delete();
+
             return GlobalFunction::update_response(Status::CHANGE_PASSWORD);
     }
 
@@ -254,8 +264,8 @@ class UserController extends Controller
         
           $id=Auth::id();
           $user = User::find($id);
-         
-          if (!$user || ! Hash::check($request->password, $user->password))
+         //pwedi yang and &&
+          if (! Hash::check($request->password, $user->password))
             {
                 return GlobalFunction::invalid(Status::INVALID_RESPONSE);
             }
@@ -274,6 +284,12 @@ class UserController extends Controller
     }
     
     public function validate_mobile(MobileRequest $request){
+       
+        return GlobalFunction::single_validation(Status::SINGLE_VALIDATION);
+        
+    }
+
+    public function validate_name(NameRequest $request){
        
         return GlobalFunction::single_validation(Status::SINGLE_VALIDATION);
         

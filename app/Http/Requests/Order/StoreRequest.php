@@ -24,8 +24,9 @@ class StoreRequest extends FormRequest
     public function rules()
     {
 
-        $customer_code = $this->get('customer')['code'];
-        $material_code = $this->get('order')['material']['code'];
+        $customer_code = $this->input('customer.code');
+        $material_code = $this->input('order.material.code');
+
         $order_no = $this->get('order_no'); 
         return [
             'order_no'=>[
@@ -55,7 +56,7 @@ class StoreRequest extends FormRequest
                     ->where('material_code', $material_code);
                 }),
             ],
-            'order.material.code'=>[
+            'order.*.material.code'=>[
                 'required',
                 Rule::unique('order','material_code')
                 ->where(function ($query) use( $customer_code, $order_no){
@@ -64,11 +65,11 @@ class StoreRequest extends FormRequest
                     ->where('customer_code', $customer_code);
                 }),
             ],
-            'order.category.id'=>'required',
-            'order.category.name'=>'required',
-            'order.material.name'=>'required',
-            'order.quantity'=>'required',
-            'order.remarks'=>'nullable',
+            'order.*.category.id'=>'required',
+            'order.*.category.name'=>'required',
+            'order.*.material.name'=>'required',
+            'order.*.quantity'=>'required',
+            'order.*.remarks'=>'nullable',
             'is_approved'=>'nullable',
         ];
     }

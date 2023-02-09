@@ -23,8 +23,16 @@ class CodeRequest extends FormRequest
      */
     public function rules()
     {
+        
         return [
-            'code'=>'unique:materials,code'
+            // $this->get('id')
+            // ?'code'=>'unique:materials,code,'.$this->get('id')
+            // :'code'=>'unique:materials,code'
+            'code'=>[
+                $this->get('id')
+                ? 'unique:materials,code,'.$this->get('id')
+                : 'unique:materials,code'
+            ]
         ];
     }
 }
