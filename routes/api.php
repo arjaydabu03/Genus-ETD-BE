@@ -37,6 +37,7 @@ use App\Http\Controllers\Api\TypeController;
         Route::patch('category/{id}',[CategoryController::class,'destroy']);
         Route::apiResource('category',CategoryController::class);
       
+        Route::patch('material/{id}',[MaterialController::class,'destroy']);
         Route::apiResource('material',MaterialController::class);
         Route::post('validate_code',[MaterialController::class,'validate_code']);
 

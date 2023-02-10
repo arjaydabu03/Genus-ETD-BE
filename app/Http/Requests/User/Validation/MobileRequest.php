@@ -26,6 +26,7 @@ class MobileRequest extends FormRequest
         return [
           
             'mobile_no'=>[
+                'required',
                 $this->get('id')
                 ?'unique:users,mobile_no,'. $this->get('id')
                 :'unique:users,mobile_no'

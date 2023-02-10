@@ -25,6 +25,7 @@ class NameRequest extends FormRequest
     {
         return [
             'name'=>[
+                'required',
                 $this->get('id')
                 ?'unique:users,account_name,'. $this->get('id')
                 :'unique:users,account_name'

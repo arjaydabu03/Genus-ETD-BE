@@ -31,7 +31,7 @@ class MaterialRequest extends FormRequest
                     ? 'unique:materials,code,'.$this->route()->material
                     : 'unique:materials,code'
             ],
-            'name'=>'required',
+            'name'=>'required|string',
             'category_id'=>'required|exists:categories,id'
         ];
     }

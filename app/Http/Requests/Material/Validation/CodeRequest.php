@@ -29,6 +29,7 @@ class CodeRequest extends FormRequest
             // ?'code'=>'unique:materials,code,'.$this->get('id')
             // :'code'=>'unique:materials,code'
             'code'=>[
+                'required',
                 $this->get('id')
                 ? 'unique:materials,code,'.$this->get('id')
                 : 'unique:materials,code'

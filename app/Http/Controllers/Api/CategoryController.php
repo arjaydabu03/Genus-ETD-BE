@@ -27,7 +27,8 @@ class CategoryController extends Controller
             $query->where('name','like','%'.$search.'%');
       });
 
-      $category=$paginate?$category->orderByDesc('updated_at')->paginate($request->rows):$category->orderByDesc('updated_at')->get();
+      $category=$paginate?$category->orderByDesc('updated_at')
+      ->paginate($request->rows):$category->orderByDesc('updated_at')->get();
 
         $is_empty = $category->isEmpty();
         

@@ -34,7 +34,8 @@ class MaterialController extends Controller
           ->orWhere('name','like','%'.$search.'%');
         });
 
-        $material=$paginate?$material->orderByDesc('updated_at')->paginate($request->rows):$material->orderByDesc('updated_at')->get();
+        $material=$paginate?$material->orderByDesc('updated_at')
+        ->paginate($request->rows):$material->orderByDesc('updated_at')->get();
 
         $is_empty = $material->isEmpty();
         if($is_empty){
@@ -49,7 +50,6 @@ class MaterialController extends Controller
       if($material->isEmpty()){
         return GlobalFunction::not_found(Status::NOT_FOUND);
       }
-
       return GlobalFunction::display_response(Status::MATERIAL_DISPLAY,$material->first());
     }
 
@@ -86,14 +86,13 @@ class MaterialController extends Controller
 
     public function destroy($id){
 
-      $material = Category::where('id',$id)->withTrashed()->get();
+      $material = Material::where('id',$id)->withTrashed()->get();
 
         if($material->isEmpty()){
          return GlobalFunction::not_found(Status::NOT_FOUND);
        }
 
       $material = Material::withTrashed()->find($id);
-     
       $is_active = Material::withTrashed()
               ->where('id', $id)
               ->first();

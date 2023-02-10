@@ -25,6 +25,7 @@ class CodeRequest extends FormRequest
     {
         return [
             'account_code'=>[
+                'required',
                 $this->get('id')
                 ?'unique:users,account_code,'.$this->get('id')
                 :'unique:users,account_code'
